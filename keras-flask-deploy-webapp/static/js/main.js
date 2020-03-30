@@ -2,7 +2,7 @@ $(document).ready(function () {
     // Init
     $('.image-section').hide();
     $('.loader').hide();
-    $('#的得分是').hide();
+    $('#score').hide();
 
     // Upload Preview
     function readURL(input) {
@@ -19,8 +19,8 @@ $(document).ready(function () {
     $("#imageUpload").change(function () {
         $('.image-section').show();
         $('#btn-predict').show();
-        $('#的得分是').text('');
-        $('#的得分是').hide();
+        $('#score').text('');
+        $('#score').hide();
         readURL(this);
     });
 
@@ -44,11 +44,10 @@ $(document).ready(function () {
             success: function (data) {
                 // Get and display the result
                 $('.loader').hide();
-                $('#的得分是').fadeIn(600);
-                $('#的得分是').text(' 的得分是:  ' + data);
+                $('#score').fadeIn(600);
+                $('#score').text(data);
                 console.log('Success!');
             },
         });
     });
-
 });

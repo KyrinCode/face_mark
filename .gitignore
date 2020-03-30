@@ -1,0 +1,4 @@
+/face_mark/SCUT-FBP5500_v2/
+
+/keras-flask-deploy-webapp/uploads/*
+!/keras-flask-deploy-webapp/uploads/*.md

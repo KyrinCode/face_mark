@@ -12,7 +12,7 @@ face_recognition 1.3.0
 
 glob2 0.7
 
-Flask
+Flask 1.1.1
 
 ## Explanation
 

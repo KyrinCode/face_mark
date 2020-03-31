@@ -33,13 +33,14 @@ model._make_predict_function()          # Necessary
 print('Model loaded. Start serving...')
 
 
-def model_predict(img_path, model):
+def model_predict(dir_path, img_name, ip, model):
 
     # Preprocessing the image
-    image = fr.load_image_file(img_path)
+    whole_path = os.path.join(dir_path, img_name)
+    image = fr.load_image_file(whole_path)
     encs = fr.face_encodings(image)
     if len(encs) != 1:
-        print("Find %d faces in %s" % (len(encs), img_path))
+        print("Find %d faces in %s" % (len(encs), whole_path))
         if len(encs) == 0:
             return "Error: no face detected"
         elif len(encs) > 1:
@@ -53,32 +54,46 @@ def model_predict(img_path, model):
     print(type(preds))
 
     # Process your result for human
-    score = round(preds[0][0]*2,3)
+    score = round(preds[0][0]*2, 3)
     print('score:',score)
     # print(type(score))
     # print(score)
+
+    # Rename img
+    new_name = str(score) + "-" + ip + "-" + img_name
+    os.rename(os.path.join(dir_path, img_name), os.path.join(dir_path, new_name))
+
     return "Score is: " + str(score)
 
 
 @app.route('/', methods=['GET'])
 def index():
     # Main page
+    # ip = request.remote_addr
+    # get real client ip when using ngrok
+    ip = request.headers.get("x-forwarded-for")
+    print(ip)
     return render_template('index.html')
 
 
 @app.route('/predict', methods=['GET', 'POST'])
 def upload():
+    # ip = request.remote_addr
+    # get real client ip when using ngrok
+    ip = request.headers.get("x-forwarded-for")
     if request.method == 'POST':
         # Get the file from post request
         f = request.files['file']
 
         # Save the file to ./uploads
         basepath = os.path.dirname(__file__)
-        file_path = os.path.join(basepath, 'uploads', secure_filename(f.filename))
+        dir_path = os.path.join(basepath, 'uploads')
+        filename = secure_filename(f.filename)
+        file_path = os.path.join(dir_path, filename)
         f.save(file_path)
 
         # Make prediction
-        preds = model_predict(file_path, model)
+        preds = model_predict(dir_path, filename, ip, model)
         # print(preds[0])
 
         return preds
@@ -94,6 +109,6 @@ if __name__ == '__main__':
     # app.run(port=5002, debug=True)
 
     # Serve the app with gevent
-    http_server = WSGIServer(('', 5005), app)
+    http_server = WSGIServer(('', 5000), app)
     http_server.serve_forever()
 
